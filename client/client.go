@@ -33,6 +33,8 @@ func main() {
         exit(1, err)
     }
 
+    fmt.Println("Connected to server at", address)
+
     defer conn.Close()
 
     // 2a. Client sends credentials

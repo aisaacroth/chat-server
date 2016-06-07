@@ -31,7 +31,7 @@ func main() {
 
     // 1a. Server reads in from a file of possible safe users?
     // 1b. Server can ask users to register with the service.
-    address := strings.Join([]string{HOME, os.Args[1]}, "/")
+    address := strings.Join([]string{HOME, os.Args[1]}, ":")
 
     // 2a. Server listens on given port number for any incoming connections
     // 2b. Receives a request from client to access the system
@@ -49,6 +49,8 @@ func main() {
         if err != nil {
             exit(1, err)
         }
+
+        fmt.Println("New connection from", conn.RemoteAddr().String())
 
         defer conn.Close()
 
