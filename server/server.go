@@ -29,22 +29,30 @@ func main() {
         exit(0, nil)
     }()
 
+    // 1a. Server reads in from a file of possible safe users?
+    // 1b. Server can ask users to register with the service.
     address := strings.Join([]string{HOME, os.Args[1]}, "/")
 
-    _, err := net.Listen("tcp", address)
+    // 2a. Server listens on given port number for any incoming connections
+    // 2b. Receives a request from client to access the system
+    ln, err := net.Listen("tcp", address)
     if err != nil {
+        // handle error
     }
+
+    defer ln.Close()
 
     fmt.Println("Server started at", address)
 
+    for {
+        conn, err := ln.Accept()
+        if err != nil {
+            // handle error
+        }
 
-    // 1a. Server reads in from a file of possible safe users?
-    // 1b. Server can ask users to register with the service.
+        defer conn.Close()
 
-    // 2a. Server listens on given port number for any incoming connections
-
-    // 2b. Receives a request from client to access the system
-
+    }
     // 3a. Send response requesting username and password
     // 3b. Receive response with username and password, verify against
     //     known users.
