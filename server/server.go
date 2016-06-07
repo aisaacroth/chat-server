@@ -37,7 +37,7 @@ func main() {
     // 2b. Receives a request from client to access the system
     ln, err := net.Listen("tcp", address)
     if err != nil {
-        // handle error
+        exit(1, err)
     }
 
     defer ln.Close()
@@ -47,7 +47,7 @@ func main() {
     for {
         conn, err := ln.Accept()
         if err != nil {
-            // handle error
+            exit(1, err)
         }
 
         defer conn.Close()
@@ -58,6 +58,9 @@ func main() {
     //     known users.
     // 3c. If the user does not validate self within 5 attempts, close
     //     the connection.
+}
+
+func handleConnection() {
 }
 
 func exit(code int, err error) {
