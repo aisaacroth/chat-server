@@ -2,7 +2,9 @@ package main
 
 import (
     "fmt"
+    "net"
     "os"
+    "strings"
     "sync"
 )
 
@@ -25,6 +27,13 @@ func main() {
 
     // 1a. Request a connection to the server on the given IP/Port
     // 1b. Response from server should ask for credentials
+    address := strings.Join(os.Args[1:], ":")
+    conn, err := net.Dial("tcp", address)
+    if err != nil {
+        exit(1, err)
+    }
+
+    defer conn.Close()
 
     // 2a. Client sends credentials
     // 2b. Response from server is either verified or not. 
