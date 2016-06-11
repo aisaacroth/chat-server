@@ -1,6 +1,7 @@
 package main
 
 import (
+    "bufio"
     "fmt"
     "net"
     "os"
@@ -37,12 +38,28 @@ func main() {
 
     defer conn.Close()
 
+    go handleStdIn(conn)
+
     // 2a. Client sends credentials
     // 2b. Response from server is either verified or not. 
     // 2c. If verified, access to the server.
     // 2d. If not verified, drop the connection.
 
     // 3a. On connection, client can send messages to the server
+}
+
+func handleStdIn(conn net.Conn) {
+    scanner := bufio.NewScanner(os.Stdin)
+    for scanner.Scan() {
+        fmt.Println(scanner.Text())
+    }
+
+    if err := scanner.Err(); err != nil {
+        exit(1, err)
+    }
+}
+
+func handleIncomingMessage(conn net.Conn) {
 }
 
 func exit(code int, err error) {
