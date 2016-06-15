@@ -1,15 +1,15 @@
 package user
 
 import (
-    "net"
+	"net"
 )
 
 type User struct {
-    Name string
-    Address net.Addr
+	Name    string
+	Address net.Addr
 }
 
 // String representation of user
 func (u User) String() string {
-    return "{" + string(u.Name) + "}"
+	return "{" + string(u.Name) + "}"
 }

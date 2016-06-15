@@ -1,77 +1,76 @@
 package main
 
 import (
-    "fmt"
-    "net"
-    "os"
-    "strings"
-    "sync"
+	"fmt"
+	"net"
+	"os"
+	"strings"
+	"sync"
 )
 
 var (
-    once sync.Once
+	once sync.Once
 )
 
 const (
-    HOME = "127.0.0.1"
+	HOME = "127.0.0.1"
 )
 
 func main() {
-    if len(os.Args) < 2 {
-        fmt.Println("server <port num>")
-        exit(0, nil)
-    }
+	if len(os.Args) < 2 {
+		fmt.Println("server <port num>")
+		exit(0, nil)
+	}
 
-    defer func() {
-        if err := recover(); err != nil {
-            exit(1, err.(error))
-        }
-        exit(0, nil)
-    }()
+	defer func() {
+		if err := recover(); err != nil {
+			exit(1, err.(error))
+		}
+		exit(0, nil)
+	}()
 
-    // 1a. Server reads in from a file of possible safe users?
-    // 1b. Server can ask users to register with the service.
-    address := strings.Join([]string{HOME, os.Args[1]}, ":")
+	// 1a. Server reads in from a file of possible safe users?
+	// 1b. Server can ask users to register with the service.
+	address := strings.Join([]string{HOME, os.Args[1]}, ":")
 
-    // 2a. Server listens on given port number for any incoming connections
-    // 2b. Receives a request from client to access the system
-    ln, err := net.Listen("tcp", address)
-    if err != nil {
-        exit(1, err)
-    }
+	// 2a. Server listens on given port number for any incoming connections
+	// 2b. Receives a request from client to access the system
+	ln, err := net.Listen("tcp", address)
+	if err != nil {
+		exit(1, err)
+	}
 
-    defer ln.Close()
+	defer ln.Close()
 
-    fmt.Println("Server started at", address)
+	fmt.Println("Server started at", address)
 
-    for {
-        conn, err := ln.Accept()
-        if err != nil {
-            exit(1, err)
-        }
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			exit(1, err)
+		}
 
-        fmt.Println("New connection from", conn.RemoteAddr().String())
+		fmt.Println("New connection from", conn.RemoteAddr().String())
 
-        defer conn.Close()
+		defer conn.Close()
 
-    }
-    // 3a. Send response requesting username and password
-    // 3b. Receive response with username and password, verify against
-    //     known users.
-    // 3c. If the user does not validate self within 5 attempts, close
-    //     the connection.
+	}
+	// 3a. Send response requesting username and password
+	// 3b. Receive response with username and password, verify against
+	//     known users.
+	// 3c. If the user does not validate self within 5 attempts, close
+	//     the connection.
 }
 
 func handleConnection() {
 }
 
 func exit(code int, err error) {
-    once.Do(func() {
-        if err != nil {
-            fmt.Fprintln(os.Stderr, err.Error())
-        }
+	once.Do(func() {
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+		}
 
-        os.Exit(code)
-    })
+		os.Exit(code)
+	})
 }
-
