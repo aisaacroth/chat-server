@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -53,6 +54,7 @@ func main() {
 		fmt.Println("New connection from", conn.RemoteAddr().String())
 
 		defer conn.Close()
+		go handleConnection(conn)
 
 	}
 	// 3a. Send response requesting username and password
@@ -62,7 +64,20 @@ func main() {
 	//     the connection.
 }
 
-func handleConnection() {
+func handleConnection(conn net.Conn) {
+	for {
+		message, err := bufio.NewReader(conn).ReadString('\n')
+
+		if err != nil {
+			fmt.Printf("%v has disconnected",
+				conn.RemoteAddr().String())
+			return
+		}
+
+		fmt.Printf("Message Received from %v: %v",
+			conn.RemoteAddr().String(),
+			string(message))
+	}
 }
 
 func exit(code int, err error) {

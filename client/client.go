@@ -38,7 +38,8 @@ func main() {
 
 	defer conn.Close()
 
-	go handleStdIn(conn)
+	go handleIncomingMessage(conn)
+	handleStdIn(conn)
 
 	// 2a. Client sends credentials
 	// 2b. Response from server is either verified or not.
@@ -51,7 +52,7 @@ func main() {
 func handleStdIn(conn net.Conn) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+                conn.Write([]byte(scanner.Text() + "\n"))
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -60,6 +61,13 @@ func handleStdIn(conn net.Conn) {
 }
 
 func handleIncomingMessage(conn net.Conn) {
+	message, err := bufio.NewReader(conn).ReadString('\n')
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Print("Message from server: " + message)
 }
 
 func exit(code int, err error) {
