@@ -67,25 +67,18 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	message := "Please input your username:"
-	conn.Write([]byte(message + "\n"))
 	reader := bufio.NewReader(conn)
+	newUser := RegisterNewUser(conn, reader)
+	message := "Welcome " + newUser.Name
 
-	response, err := reader.ReadString('\n')
-
-	if err != nil {
-		exit(1, err)
-	}
-
-	newUser := user.User{response, conn.RemoteAddr()}
-	message = "Welcome " + newUser.Name
+	fmt.Printf("New User created: %v\n", newUser)
 
 	for {
 		conn.Write([]byte(message + "\n"))
-		response, err = bufio.NewReader(conn).ReadString('\n')
+		response, err := bufio.NewReader(conn).ReadString('\n')
 
 		if err != nil {
-			fmt.Printf("%v has disconnected",
+			fmt.Printf("%v has disconnected\n",
 				conn.RemoteAddr().String())
 			return
 		}
@@ -94,6 +87,23 @@ func handleConnection(conn net.Conn) {
 			conn.RemoteAddr().String(),
 			string(response))
 	}
+}
+
+func RegisterNewUser(conn net.Conn, reader *bufio.Reader) user.User {
+	message := "Please input your username:"
+	conn.Write([]byte(message + "\n"))
+
+	response, err := reader.ReadString('\n')
+
+	if err != nil {
+		exit(1, err)
+	}
+
+	cleanName := strings.TrimSpace(response)
+
+	newUser := user.User{cleanName, conn.RemoteAddr()}
+
+	return newUser
 }
 
 func exit(code int, err error) {
