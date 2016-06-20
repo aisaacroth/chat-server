@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/aisaacroth/chat-server/server/user"
 )
 
 var (
@@ -65,8 +67,22 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
+	message := "Please input your username:"
+	conn.Write([]byte(message + "\n"))
+	reader := bufio.NewReader(conn)
+
+	response, err := reader.ReadString('\n')
+
+	if err != nil {
+		exit(1, err)
+	}
+
+	newUser := user.User{response, conn.RemoteAddr()}
+	message = "Welcome " + newUser.Name
+
 	for {
-		message, err := bufio.NewReader(conn).ReadString('\n')
+		conn.Write([]byte(message + "\n"))
+		response, err = bufio.NewReader(conn).ReadString('\n')
 
 		if err != nil {
 			fmt.Printf("%v has disconnected",
@@ -74,9 +90,9 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		fmt.Printf("Message Received from %v: %v",
+		fmt.Printf("Response Received from %v: %v",
 			conn.RemoteAddr().String(),
-			string(message))
+			string(response))
 	}
 }
 

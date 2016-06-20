@@ -52,7 +52,7 @@ func main() {
 func handleStdIn(conn net.Conn) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-                conn.Write([]byte(scanner.Text() + "\n"))
+		conn.Write([]byte(scanner.Text() + "\n"))
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -61,13 +61,17 @@ func handleStdIn(conn net.Conn) {
 }
 
 func handleIncomingMessage(conn net.Conn) {
-	message, err := bufio.NewReader(conn).ReadString('\n')
+	reader := bufio.NewReader(conn)
 
-	if err != nil {
-		panic(err)
+	for {
+		message, err := reader.ReadString('\n')
+
+		if err != nil {
+			exit(1, err)
+		}
+
+		fmt.Print(message)
 	}
-
-	fmt.Print("Message from server: " + message)
 }
 
 func exit(code int, err error) {
