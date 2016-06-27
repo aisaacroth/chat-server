@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+        "github.com/aisaacroth/chat-server/server/command"
 	"github.com/aisaacroth/chat-server/server/user"
 )
 
@@ -18,6 +19,8 @@ var (
 const (
 	HOME = "127.0.0.1"
 )
+
+type UserList []user.User
 
 func main() {
 	if len(os.Args) < 2 {
@@ -32,12 +35,8 @@ func main() {
 		exit(0, nil)
 	}()
 
-	// 1a. Server reads in from a file of possible safe users?
-	// 1b. Server can ask users to register with the service.
 	address := strings.Join([]string{HOME, os.Args[1]}, ":")
 
-	// 2a. Server listens on given port number for any incoming connections
-	// 2b. Receives a request from client to access the system
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
 		exit(1, err)
@@ -46,6 +45,7 @@ func main() {
 	defer ln.Close()
 
 	fmt.Println("Server started at", address)
+        userSlice := make(UserList, 0)
 
 	for {
 		conn, err := ln.Accept()
@@ -56,22 +56,19 @@ func main() {
 		fmt.Println("New connection from", conn.RemoteAddr().String())
 
 		defer conn.Close()
-		go handleConnection(conn)
+		go handleConnection(&userSlice, conn)
 
 	}
-	// 3a. Send response requesting username and password
-	// 3b. Receive response with username and password, verify against
-	//     known users.
-	// 3c. If the user does not validate self within 5 attempts, close
-	//     the connection.
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(userSlice *UserList, conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	newUser := RegisterNewUser(conn, reader)
+        *userSlice = append(*userSlice, newUser)
 	message := "Welcome " + newUser.Name
 
 	fmt.Printf("New User created: %v\n", newUser)
+        fmt.Printf("User Slice Size: %v\n", len(*userSlice))
 
 	for {
 		conn.Write([]byte(message + "\n"))
@@ -86,6 +83,8 @@ func handleConnection(conn net.Conn) {
 		fmt.Printf("Response Received from %v: %v",
 			conn.RemoteAddr().String(),
 			string(response))
+
+                HandleCommand(message)
 	}
 }
 
@@ -105,6 +104,15 @@ func RegisterNewUser(conn net.Conn, reader *bufio.Reader) user.User {
 
 	return newUser
 }
+
+func HandleCommand(command string,  conn net.Conn) {
+    request := CreateCommand(command, conn)
+}
+
+func CreateCommand(command string, conn net.Conn) command.Command {
+    return nil
+}
+
 
 func exit(code int, err error) {
 	once.Do(func() {

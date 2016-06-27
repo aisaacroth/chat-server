@@ -7,7 +7,6 @@ import (
 type User struct {
 	Name     string
 	Address  net.Addr
-	Password string
 }
 
 // String representation of user
